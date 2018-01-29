@@ -768,9 +768,7 @@ calculate_state_trees(Node, Acc, State) ->
 update_top_block_hash(Hash, State) ->
     case get_top_block_hash(State) =:= Hash of
         true -> State;
-        false ->
-            State1 = set_top_block_hash(Hash, State),
-            garbage_collect_state_trees(State1)
+        false -> set_top_block_hash(Hash, State)
     end.
 
 apply_node_transactions([Node|Left], Trees, State) ->
@@ -874,67 +872,6 @@ get_N_nodes_time_summary(Node, ParentTime, ParentDifficulty, State, Acc0, N) ->
             end
     end.
 
-
-%%%-------------------------------------------------------------------
-%%% Garbage collection of state trees
-%%% -------------------------------------------------------------------
-%%% @doc Garbage collection strategy: Keep all snapshots from the
-%%% block top until ?KEEP_ALL_SNAPSHOTS_HEIGHT, then keep only
-%%% snapshots spaced with ?SPARSE_SNAPSHOTS_INTERVAL until
-%%% ?MAX_SNAPSHOT_HEIGHT.
-%%% TODO: The parameters should be configurable from the environment.
-
-garbage_collect_state_trees(State) ->
-    case get_top_block_hash(State) of
-        undefined -> State;
-        Hash when is_binary(Hash) ->
-            Node = blocks_db_get(Hash, State),
-            %% NOTE: Order is important for the nodes in Keep.
-            %%       They must be in increasing height to avoid
-            %%       quadratic complexity.
-            Keep = gc_collect(Node, 0, State, []),
-            gc_init(Keep, State)
-    end.
-
-gc_init(Nodes, State) ->
-    gc_init(Nodes, State, []).
-
-gc_init([], State, Acc) ->
-    state_db_init_from_list(Acc, State);
-gc_init([Node|Left], State, Acc) ->
-    case calculate_state_trees(Node, State) of
-        {stored, Trees} -> gc_init(Left, State, [{hash(Node), Trees}|Acc]);
-        {calculated, Trees} ->
-            %% We must store the current state so that we don't need
-            %% to calculate it again if we need the next state as well.
-            Hash = hash(Node),
-            State1 = state_db_put(Hash, Trees, State),
-            gc_init(Left, State1, [{Hash, Trees}|Acc])
-    end.
-
-gc_collect(Node, HeightFromTop, State, Acc) ->
-    case node_height(Node) =:= 0 of
-        true  -> [Node|Acc];%% Always keep genesis if it falls into range
-        false ->
-            MaxHeight = maps:get(max_snapshot_height, State),
-            case HeightFromTop > MaxHeight of
-                true -> Acc;
-                false ->
-                    PrevNode = blocks_db_get(prev_hash(Node), State),
-                    Height = HeightFromTop + 1,
-                    case keep_state_snapshot(HeightFromTop, State) of
-                        true -> gc_collect(PrevNode, Height, State, [Node|Acc]);
-                        false -> gc_collect(PrevNode, Height, State, Acc)
-                    end
-            end
-    end.
-
-keep_state_snapshot(HeightFromTop, State) ->
-    KeepAll = maps:get(keep_all_snapshots_height, State),
-    Interval = maps:get(sparse_snapshots_interval, State),
-    (HeightFromTop < KeepAll)
-        orelse (((HeightFromTop - KeepAll) rem Interval) == 0).
-
 %%%-------------------------------------------------------------------
 %%% Internal interface for the blocks_db
 %%%-------------------------------------------------------------------
@@ -989,19 +926,23 @@ blocks_db_init_from_list(List, State) ->
     State#{blocks_db => DB, genesis_block_hash => GenesisHash}.
 
 
-state_db_put(Hash, Trees, #{state_db := DB} = State) ->
-    State#{state_db => db_put(Hash, Trees, DB)}.
+state_db_put(Hash, Trees, State) ->
+    ok = aec_db:write_block_state(Hash, Trees),
+    State.
 
-state_db_find(Key, #{state_db := Store}) ->
-    db_find(Key, Store).
+state_db_find(Hash, #{} =_State) ->
+    case aec_db:find_block_state(Hash) of
+        {value, Trees} -> {ok, Trees};
+        none -> error
+    end.
 
-state_db_init_from_list(List, State) ->
-    Fun = fun({Key, Val}, Acc) -> db_put(Key, Val, Acc)end,
-    DB = lists:foldl(Fun, db_new(), List),
-    State#{state_db => DB}.
+state_db_init_from_list(_List, State) ->
+    %% TODO: Remove
+    State.
 
 state_db_to_list(#{state_db := DB} =_State) ->
-    db_to_list(DB).
+    %% TODO: Remove
+    [].
 
 -spec fold_blocks(fun((_, _, _) -> any()), any(), state()) -> any().
 fold_blocks(Fun, Acc0, #{blocks_db := Store}) when is_function(Fun, 3) ->

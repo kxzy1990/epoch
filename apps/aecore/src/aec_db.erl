@@ -22,7 +22,11 @@
          get_header/1,
          get_top_block/0,
          get_top_header/0,
-         get_block_state/1]).
+         get_block_state/1
+        ]).
+
+-export([find_block_state/1
+        ]).
 
 -export([import_old_persistence_data/0]).  % likely to be removed completely
 
@@ -138,6 +142,12 @@ get_block_state(Hash) ->
                mnesia:read(aec_block_state, Hash),
            Trees
        end).
+
+find_block_state(Hash) ->
+    case ?t(mnesia:read(aec_block_state, Hash)) of
+        [#aec_block_state{value = Trees}] -> {value, Trees};
+        [] -> none
+    end.
 
 get_chain_state_value(Key) ->
     ?t(case mnesia:read(aec_chain_state, Key) of
