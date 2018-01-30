@@ -252,7 +252,6 @@
         "tags" : [ "external" ],
         "description" : "Get name entry from Naming System",
         "operationId" : "GetName",
-        "consumes" : [ "application/json" ],
         "produces" : [ "application/json" ],
         "parameters" : [ {
           "name" : "name",
@@ -274,8 +273,7 @@
               "$ref" : "#/definitions/Error"
             }
           }
-        },
-        "security" : [ ]
+        }
       }
     },
     "/spend-tx" : {
@@ -478,8 +476,7 @@
               "$ref" : "#/definitions/Error"
             }
           }
-        },
-        "security" : [ ]
+        }
       }
     },
     "/name-claim-tx" : {
@@ -517,8 +514,7 @@
               "$ref" : "#/definitions/Error"
             }
           }
-        },
-        "security" : [ ]
+        }
       }
     },
     "/name-update-tx" : {
@@ -556,8 +552,7 @@
               "$ref" : "#/definitions/Error"
             }
           }
-        },
-        "security" : [ ]
+        }
       }
     },
     "/name-transfer-tx" : {
@@ -595,8 +590,7 @@
               "$ref" : "#/definitions/Error"
             }
           }
-        },
-        "security" : [ ]
+        }
       }
     },
     "/name-revoke-tx" : {
@@ -634,8 +628,7 @@
               "$ref" : "#/definitions/Error"
             }
           }
-        },
-        "security" : [ ]
+        }
       }
     },
     "/account/pub-key" : {
@@ -1365,9 +1358,6 @@
         "data_schema" : {
           "type" : "string"
         }
-      },
-      "example" : {
-        "data_schema" : "data_schema"
       }
     },
     "TxMsgPackHashes" : {
@@ -1426,14 +1416,6 @@
             "$ref" : "#/definitions/Uri"
           }
         }
-      },
-      "example" : {
-        "difficulty" : 0.80082819046101150206595775671303272247314453125,
-        "genesis_hash" : "genesis_hash",
-        "peers" : [ { }, { } ],
-        "best_hash" : "best_hash",
-        "share" : 19,
-        "source" : "source"
       }
     },
     "Balance" : {
@@ -1443,9 +1425,6 @@
           "type" : "integer",
           "format" : "int64"
         }
-      },
-      "example" : {
-        "balance" : 0
       }
     },
     "Tx" : {
@@ -1454,9 +1433,6 @@
         "tx" : {
           "type" : "string"
         }
-      },
-      "example" : {
-        "tx" : "tx"
       }
     },
     "Transactions" : {
@@ -1491,11 +1467,6 @@
           "type" : "integer",
           "format" : "int64"
         }
-      },
-      "example" : {
-        "amount" : 0,
-        "fee" : 6,
-        "recipient_pubkey" : "recipient_pubkey"
       }
     },
     "OracleRegisterTx" : {
@@ -1518,16 +1489,6 @@
         "ttl" : {
           "$ref" : "#/definitions/TTL"
         }
-      },
-      "example" : {
-        "response_format" : "response_format",
-        "fee" : 6,
-        "query_fee" : 0,
-        "ttl" : {
-          "type" : "delta",
-          "value" : 1
-        },
-        "query_format" : "query_format"
       }
     },
     "OracleQueryTx" : {
@@ -1553,20 +1514,6 @@
           "type" : "integer",
           "format" : "int64"
         }
-      },
-      "example" : {
-        "response_ttl" : {
-          "type" : "delta",
-          "value" : 6
-        },
-        "query" : "query",
-        "query_ttl" : {
-          "type" : "delta",
-          "value" : 1
-        },
-        "fee" : 1,
-        "query_fee" : 0,
-        "oracle_pubkey" : "oracle_pubkey"
       }
     },
     "OracleResponseTx" : {
@@ -1582,11 +1529,6 @@
           "type" : "integer",
           "format" : "int64"
         }
-      },
-      "example" : {
-        "query_id" : "query_id",
-        "response" : "response",
-        "fee" : 0
       }
     },
     "TTL" : {
@@ -1600,10 +1542,6 @@
           "type" : "integer",
           "format" : "int64"
         }
-      },
-      "example" : {
-        "type" : "delta",
-        "value" : 1
       }
     },
     "RelativeTTL" : {
@@ -1617,10 +1555,6 @@
           "type" : "integer",
           "format" : "int64"
         }
-      },
-      "example" : {
-        "type" : "delta",
-        "value" : 6
       }
     },
     "OracleQueryId" : {
@@ -1629,9 +1563,6 @@
         "query_id" : {
           "type" : "string"
         }
-      },
-      "example" : {
-        "query_id" : "query_id"
       }
     },
     "NameEntry" : {
@@ -1754,9 +1685,6 @@
         "pub_key" : {
           "type" : "string"
         }
-      },
-      "example" : {
-        "pub_key" : "pub_key"
       }
     },
     "AccountsBalances" : {
@@ -1768,15 +1696,6 @@
             "$ref" : "#/definitions/AccountBalance"
           }
         }
-      },
-      "example" : {
-        "accounts_balances" : [ {
-          "balance" : 0,
-          "pub_key" : "pub_key"
-        }, {
-          "balance" : 0,
-          "pub_key" : "pub_key"
-        } ]
       }
     },
     "AccountBalance" : {
@@ -1789,10 +1708,6 @@
           "type" : "integer",
           "format" : "int64"
         }
-      },
-      "example" : {
-        "balance" : 0,
-        "pub_key" : "pub_key"
       }
     },
     "Version" : {
@@ -1807,11 +1722,6 @@
         "genesis_hash" : {
           "type" : "string"
         }
-      },
-      "example" : {
-        "genesis_hash" : "genesis_hash",
-        "version" : "version",
-        "revision" : "revision"
       }
     },
     "Info" : {
@@ -1823,19 +1733,6 @@
             "$ref" : "#/definitions/BlockTimeSummary"
           }
         }
-      },
-      "example" : {
-        "last_30_blocks_time" : [ {
-          "difficulty" : 5.962133916683182377482808078639209270477294921875,
-          "time" : 6,
-          "time_delta_to_parent" : 1,
-          "height" : 0
-        }, {
-          "difficulty" : 5.962133916683182377482808078639209270477294921875,
-          "time" : 6,
-          "time_delta_to_parent" : 1,
-          "height" : 0
-        } ]
       }
     },
     "BlockTimeSummary" : {
@@ -1856,12 +1753,6 @@
         "difficulty" : {
           "type" : "number"
         }
-      },
-      "example" : {
-        "difficulty" : 5.962133916683182377482808078639209270477294921875,
-        "time" : 6,
-        "time_delta_to_parent" : 1,
-        "height" : 0
       }
     },
     "BlockHeight" : {
@@ -1873,9 +1764,6 @@
           "format" : "int64",
           "description" : "Blocks's height"
         }
-      },
-      "example" : {
-        "height" : 0
       }
     },
     "SingleTxHashOrObject" : {
@@ -1886,9 +1774,6 @@
         "data_schema" : {
           "type" : "string"
         }
-      },
-      "example" : {
-        "data_schema" : "data_schema"
       }
     },
     "SingleTxObject" : {
@@ -2052,9 +1937,6 @@
           "type" : "integer",
           "description" : "Count"
         }
-      },
-      "example" : {
-        "count" : 0
       }
     },
     "RegisteredOracles_inner" : {

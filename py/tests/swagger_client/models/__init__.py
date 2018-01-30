@@ -26,6 +26,14 @@ from .generic_tx_object import GenericTxObject
 from .header import Header
 from .info import Info
 from .inline_response_200 import InlineResponse200
+from .name_claim_tx import NameClaimTx
+from .name_commitment_hash import NameCommitmentHash
+from .name_entry import NameEntry
+from .name_hash import NameHash
+from .name_preclaim_tx import NamePreclaimTx
+from .name_revoke_tx import NameRevokeTx
+from .name_transfer_tx import NameTransferTx
+from .name_update_tx import NameUpdateTx
 from .oracle_query_id import OracleQueryId
 from .oracle_query_tx import OracleQueryTx
 from .oracle_questions import OracleQuestions
@@ -51,6 +59,11 @@ from .version import Version
 from .block import Block
 from .coinbase_tx_object import CoinbaseTxObject
 from .generic_block import GenericBlock
+from .name_claim_tx_object import NameClaimTxObject
+from .name_preclaim_tx_object import NamePreclaimTxObject
+from .name_revoke_tx_object import NameRevokeTxObject
+from .name_transfer_tx_object import NameTransferTxObject
+from .name_update_tx_object import NameUpdateTxObject
 from .oracle_query_tx_object import OracleQueryTxObject
 from .oracle_register_tx_object import OracleRegisterTxObject
 from .oracle_response_tx_object import OracleResponseTxObject
