@@ -28,11 +28,9 @@ setup_minimal() ->
     TmpKeysDir = aec_test_utils:aec_keys_setup(),
     aec_test_utils:mock_time(),
     {ok, _} = aec_tx_pool:start_link(),
-    {ok, _} = aec_persistence:start_link(),
     TmpKeysDir.
 
 teardown_minimal(TmpKeysDir) ->
-    ok = aec_persistence:stop_and_clean(),
     ok = aec_tx_pool:stop(),
     ok = application:stop(gproc),
     _  = flush_gproc(),

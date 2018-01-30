@@ -38,8 +38,6 @@
 -export([find_block_state/1
         ]).
 
--export([import_old_persistence_data/0]).  % likely to be removed completely
-
 -include("common.hrl").
 -include("blocks.hrl").
 
@@ -231,40 +229,6 @@ wait_for_tables(Tabs, Sofar, Period, Max) when Sofar < Max ->
     end;
 wait_for_tables(Tabs, Sofar, _, _) ->
     {timeout, Sofar, Tabs}.
-
-import_old_persistence_data() ->
-    case aec_persistence:get_chain() of
-        [] ->
-            ok;
-        Chain ->
-            ChainState = aec_chain_state:new_from_persistence(Chain),
-            transaction(fun() -> persist_chain(ChainState) end),
-            aec_persistence:remove_files(),
-            ok
-    end.
-
-persist_chain(ChainState) ->
-    Trees = aec_chain_state:get_state_trees_for_persistence(ChainState),
-    aec_chain_state:fold_blocks(
-      fun(Hash, Block, _) ->
-              mnesia:write(#aec_blocks{key = Hash, value = Block}),
-              ok
-      end, ok, ChainState),
-    aec_chain_state:fold_headers(
-      fun(Hash, Hdr, _) ->
-              mnesia:write(#aec_headers{key = Hash, value = Hdr}),
-              ok
-      end, ok, ChainState),
-    lists:foreach(
-      fun({Hash, BTrees}) ->
-              mnesia:write(#aec_block_state{key = Hash, value = BTrees})
-      end, Trees),
-    TopHeaderHash = aec_chain_state:top_header_hash(ChainState),
-    TopBlockHash  = aec_chain_state:top_block_hash(ChainState),
-    mnesia:write(#aec_chain_state{key = top_header_hash,
-                                  value = TopHeaderHash}),
-    mnesia:write(#aec_chain_state{key = top_block_hash,
-                                  value = TopBlockHash}).
 
 %% Initialization routines
 
