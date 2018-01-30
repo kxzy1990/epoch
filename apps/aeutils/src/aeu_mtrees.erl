@@ -31,6 +31,12 @@
          empty_with_backend/1
         ]).
 
+%% For internal functional db
+-export([ proof_db_commit/2
+        , proof_db_get/2
+        , proof_db_put/3
+        ]).
+
 -export_type([iterator/0,
               mtree/0,
               mtree/2,
@@ -164,13 +170,16 @@ new_proof_db() ->
 proof_db_spec() ->
     #{ handle => dict:new()
      , cache  => dict:new()
-     , get    => fun proof_db_get/2
-     , put    => fun dict:store/3
-     , commit => fun proof_db_commit/2
+     , get    => {?MODULE, proof_db_get}
+     , put    => {?MODULE, proof_db_put}
+     , commit => {?MODULE, proof_db_commit}
      }.
 
 proof_db_get(Key, Proof) ->
     {value, dict:fetch(Key, Proof)}.
+
+proof_db_put(Key, Val, Proof) ->
+    dict:store(Key, Val, Proof).
 
 proof_db_commit(_Cache,_DB) ->
     error(no_commits_in_proof).

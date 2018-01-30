@@ -12,6 +12,12 @@
         , oracles_backend/0
         ]).
 
+%% Callbacks for aeu_mp_trees_db
+-export([ db_commit/2
+        , db_get/2
+        , db_put/3
+        ]).
+
 %%%===================================================================
 %%% API
 %%%===================================================================
@@ -35,9 +41,9 @@ oracles_backend() ->
 db_spec(Type) ->
     #{ handle => Type
      , cache  => {gb_trees, gb_trees:empty()}
-     , get    => fun db_get/2
-     , put    => fun db_put/3
-     , commit => fun db_commit/2
+     , get    => {?MODULE, db_get}
+     , put    => {?MODULE, db_put}
+     , commit => {?MODULE, db_commit}
      }.
 
 db_get(Key, {gb_trees, Tree}) ->

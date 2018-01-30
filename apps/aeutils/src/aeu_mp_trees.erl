@@ -23,6 +23,12 @@
         , verify_proof/4
         ]).
 
+%% For internal functional db
+-export([ dict_db_commit/2
+        , dict_db_get/2
+        , dict_db_put/3
+        ]).
+
 -export_type([ tree/0
              , iterator/0
              , key/0
@@ -726,13 +732,16 @@ new_dict_db() ->
 dict_db_spec() ->
     #{ handle => dict:new()
      , cache  => dict:new()
-     , get    => fun dict_db_get/2
-     , put    => fun dict:store/3
-     , commit => fun dict_db_commit/2
+     , get    => {?MODULE, dict_db_get}
+     , put    => {?MODULE, dict_db_put}
+     , commit => {?MODULE, dict_db_commit}
      }.
 
 dict_db_get(Key, Dict) ->
     {value, dict:fetch(Key, Dict)}.
+
+dict_db_put(Key, Val, Dict) ->
+    dict:store(Key, Val, Dict).
 
 dict_db_commit(Cache, DB) ->
     {ok, dict:new(), dict:merge(fun(_, _, Val) -> Val end, Cache, DB)}.
