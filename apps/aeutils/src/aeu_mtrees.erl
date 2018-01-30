@@ -17,6 +17,8 @@
          delete/2,
          get/2,
          insert/3,
+         iterator_from/2,
+         iterator_next/1,
          lookup/2,
          enter/3,
          to_list/1]).
@@ -29,7 +31,8 @@
          empty_with_backend/1
         ]).
 
--export_type([mtree/0,
+-export_type([iterator/0,
+              mtree/0,
               mtree/2,
               root_hash/0,
               proof/0]).
@@ -41,6 +44,8 @@
 -type key() :: binary().
 -type value() :: binary().
 -type mtree() :: mtree(key(), value()).
+
+-opaque iterator() :: aeu_mp_trees:iterator().
 
 %% Enable specification of types of key and value for enabling code
 %% using this module to document types for readability.
@@ -89,6 +94,15 @@ insert(Key, Value, Tree) when ?IS_KEY(Key), ?IS_VALUE(Value) ->
         none -> aeu_mp_trees:put(Key, Value, Tree);
         {value, _} -> error({already_present, Key})
     end.
+
+-spec iterator_from(key(), mtree()) -> iterator().
+iterator_from(Key, Tree) ->
+    aeu_mp_trees:iterator_from(Key, Tree).
+
+-spec iterator_next(iterator()) ->
+                           {key(), value(), iterator()} | '$end_of_table'.
+iterator_next(Iter) ->
+    aeu_mp_trees:iterator_next(Iter).
 
 -spec to_list(mtree()) -> [{key(), value()}].
 to_list(Tree) ->

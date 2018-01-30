@@ -15,6 +15,7 @@
         , delete/2
         , get/2
         , iterator/1
+        , iterator_from/2
         , iterator_next/1
         , pp/1
         , put/3
@@ -151,6 +152,12 @@ verify_proof(Key, Val, Hash, ProofDB) ->
 -spec iterator(tree()) -> iterator().
 iterator(#mpt{hash = Hash, db = DB}) ->
     #iter{key = <<>>, root = Hash, db = DB}.
+
+%%% @doc Iterator from a key. Key doesn't need to exist. Calling
+%%% iterator_next/1 gives the next value after Key.
+-spec iterator_from(key(), tree()) -> iterator().
+iterator_from(Key, #mpt{hash = Hash, db = DB}) ->
+    #iter{key = Key, root = Hash, db = DB}.
 
 -spec iterator_next(iterator()) ->
                            {key(), value(), iterator()} | '$end_of_table'.
