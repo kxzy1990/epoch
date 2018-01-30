@@ -272,7 +272,7 @@ find_common_ancestor(Hash1, Hash2, ?assert_state() = State) ->
 get_state_trees_for_persistence(?assert_state() = State) ->
     state_db_to_list(State).
 
--spec get_top_state_trees(state())->#trees{}.
+-spec get_top_state_trees(state()) -> {'ok', trees()} | 'error'.
 get_top_state_trees(?assert_state() = State) ->
     TopHash = get_top_header_hash(State),
     state_db_find(TopHash, State).

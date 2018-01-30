@@ -11,7 +11,9 @@
                     | oracle_pubkey
                     | oracle_query_id
                     | account_pubkey
-                    | signature.
+                    | signature
+                    | name
+                    | commitment.
 
 -type payload() :: binary().
 -type encoded() :: binary().

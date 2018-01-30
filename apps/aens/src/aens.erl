@@ -33,10 +33,10 @@ resolve(Type, Binary) ->
                 [] ->
                     {error, registrar_unknown};
                 _ ->
-                    StateTrees = aec_conductor:top_state_trees(),
+                    {ok, StateTrees} = aec_conductor:top_state_trees(),
                     NameTree = aec_trees:ns(StateTrees),
                     case get_name(Binary, NameTree) of
-                        #{<<"pointers">> := Pointers} ->
+                        {ok, #{<<"pointers">> := Pointers}} ->
                             case proplists:get_value(Type, Pointers) of
                                 undefined -> {error, type_not_found};
                                 Val -> {ok, Val}
@@ -51,7 +51,16 @@ resolve(Type, Binary) ->
 get_name_entry(Name) ->
     {ok, StateTrees} = aec_conductor:top_state_trees(),
     NSTree = aec_trees:ns(StateTrees),
-    get_name(Name, NSTree).
+    case get_name(Name, NSTree) of
+        {ok, #{<<"name">>     := Name,
+               <<"name_ttl">> := TTL,
+               <<"pointers">> := Pointers}} ->
+            {ok, #{<<"name">>     => Name,
+                   <<"name_ttl">> => TTL,
+                   <<"pointers">> => jsx:encode(Pointers)}};
+        {error, name_not_found} = Error ->
+            Error
+    end.
 
 %%%===================================================================
 %%% Internal functions

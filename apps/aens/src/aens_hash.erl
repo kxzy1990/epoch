@@ -34,7 +34,7 @@ commitment_hash(Name, Salt) ->
     SaltBin = int_to_bin(Salt),
     hash(<<NameHash/binary, SaltBin/binary>>).
 
--spec name_hash(aens_names:name()) -> name_hash().
+-spec name_hash(binary()) -> name_hash().
 name_hash(Name) ->
     Labels = binary:split(Name, <<".">>, [global]),
     hash_labels(lists:reverse(Labels)).
