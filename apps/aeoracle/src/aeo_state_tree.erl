@@ -8,9 +8,11 @@
 -module(aeo_state_tree).
 
 %% API
--export([ get_query/3
+-export([ commit_to_db/1
+        , get_query/3
         , get_oracle/2
         , empty/0
+        , empty_with_backend/0
         , enter_query/2
         , insert_query/2
         , insert_oracle/2
@@ -73,6 +75,16 @@ empty() ->
                 , itrees = ITrees
                 , cache  = cache_new()
                 }.
+
+-spec empty_with_backend() -> tree().
+empty_with_backend() ->
+    OTree  = aeu_mtrees:empty_with_backend(aec_db_backends:oracles_backend()),
+    ITrees = gb_trees:empty(),
+    #oracle_tree{ otree  = OTree
+                , itrees = ITrees
+                , cache  = cache_new()
+                }.
+
 
 -spec prune(block_height(), tree()) -> tree().
 prune(Height, #oracle_tree{} = Tree) ->
@@ -145,6 +157,10 @@ query_list(#oracle_tree{itrees = ITrees}) ->
     [ aeo_query:deserialize(Val) || {_, ITree} <- gb_trees:to_list(ITrees),
                                     {_, Val} <- aeu_mtrees:to_list(ITree) ].
 -endif.
+
+-spec commit_to_db(tree()) -> tree().
+commit_to_db(#oracle_tree{otree = OTree} = Tree) ->
+    Tree#oracle_tree{otree = aeu_mtrees:commit_to_db(OTree)}.
 
 %%%===================================================================
 %%% Internal functions

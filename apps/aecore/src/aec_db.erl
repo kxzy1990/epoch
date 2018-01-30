@@ -25,6 +25,16 @@
          get_block_state/1
         ]).
 
+%% MP trees backend
+-export([ find_oracles_node/1
+        , find_contracts_node/1
+        , find_accounts_node/1
+        , write_oracles_node/2
+        , write_contracts_node/2
+        , write_accounts_node/2
+        ]).
+
+
 -export([find_block_state/1
         ]).
 
@@ -43,6 +53,7 @@
 
 -record(aec_blocks             , {key, value}).
 -record(aec_headers            , {key, value}).
+-record(aec_contract_state     , {key, value}).
 -record(aec_chain_state        , {key, value}).
 -record(aec_block_state        , {key, value}).
 -record(aec_oracle_state       , {key, value}).
@@ -61,6 +72,7 @@ tables(Mode) ->
     [?TAB(aec_blocks)
    , ?TAB(aec_headers)
    , ?TAB(aec_chain_state)
+   , ?TAB(aec_contract_state)
    , ?TAB(aec_block_state)
    , ?TAB(aec_oracle_state)
    , ?TAB(aec_account_state)
@@ -124,6 +136,15 @@ get_header(Hash) ->
 write_block_state(Hash, Trees) ->
     ?t(mnesia:write(#aec_block_state{key = Hash, value = Trees})).
 
+write_accounts_node(Hash, Node) ->
+    ?t(mnesia:write(#aec_account_state{key = Hash, value = Node})).
+
+write_contracts_node(Hash, Node) ->
+    ?t(mnesia:write(#aec_contract_state{key = Hash, value = Node})).
+
+write_oracles_node(Hash, Node) ->
+    ?t(mnesia:write(#aec_oracle_state{key = Hash, value = Node})).
+
 write_top_block(Hash) ->
     ?t(mnesia:write(#aec_chain_state{key = top_block_hash, value = Hash})).
 
@@ -146,6 +167,24 @@ get_block_state(Hash) ->
 find_block_state(Hash) ->
     case ?t(mnesia:read(aec_block_state, Hash)) of
         [#aec_block_state{value = Trees}] -> {value, Trees};
+        [] -> none
+    end.
+
+find_oracles_node(Hash) ->
+    case ?t(mnesia:read(aec_oracle_state, Hash)) of
+        [#aec_oracle_state{value = Node}] -> {value, Node};
+        [] -> none
+    end.
+
+find_contracts_node(Hash) ->
+    case ?t(mnesia:read(aec_contract_state, Hash)) of
+        [#aec_contract_state{value = Node}] -> {value, Node};
+        [] -> none
+    end.
+
+find_accounts_node(Hash) ->
+    case ?t(mnesia:read(aec_account_state, Hash)) of
+        [#aec_account_state{value = Node}] -> {value, Node};
         [] -> none
     end.
 

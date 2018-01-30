@@ -927,7 +927,8 @@ blocks_db_init_from_list(List, State) ->
 
 
 state_db_put(Hash, Trees, State) ->
-    ok = aec_db:write_block_state(Hash, Trees),
+    Trees1 = aec_trees:commit_to_db(Trees),
+    ok = aec_db:write_block_state(Hash, Trees1),
     State.
 
 state_db_find(Hash, #{} =_State) ->

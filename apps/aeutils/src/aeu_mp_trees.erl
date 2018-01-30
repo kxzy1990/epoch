@@ -8,6 +8,7 @@
 -module(aeu_mp_trees).
 
 -export([ new/0
+        , new/1
         , new/2
         , commit_to_db/1
         , construct_proof/3
@@ -75,6 +76,10 @@
 -spec new() -> tree().
 new() ->
     #mpt{}.
+
+-spec new(db()) -> tree().
+new(DB) ->
+    #mpt{db = DB}.
 
 -spec new(hash(), db()) -> tree().
 new(RootHash, DB) ->

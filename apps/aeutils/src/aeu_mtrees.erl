@@ -24,7 +24,10 @@
 %% API - Merkle tree
 -export([root_hash/1,
          lookup_with_proof/2,
-         verify_proof/4]).
+         verify_proof/4,
+         commit_to_db/1,
+         empty_with_backend/1
+        ]).
 
 -export_type([mtree/0,
               mtree/2,
@@ -56,6 +59,10 @@
 -spec empty() -> mtree().
 empty() ->
     aeu_mp_trees:new().
+
+-spec empty_with_backend(aeu_mp_trees_db:db()) -> mtree().
+empty_with_backend(DB) ->
+    aeu_mp_trees:new(DB).
 
 delete(Key, Tree) when ?IS_KEY(Key) ->
     aeu_mp_trees:delete(Key, Tree).
@@ -124,6 +131,13 @@ verify_proof(Key, Value, RootHash, Proof) ->
     case aeu_mp_trees:verify_proof(Key, Value, RootHash, Proof) of
         ok -> {ok, verified};
         Other -> {error, Other}
+    end.
+
+-spec commit_to_db(mtree()) -> mtree().
+commit_to_db(Tree) ->
+    case aeu_mp_trees:commit_to_db(Tree) of
+        {ok, Tree1}   -> Tree1;
+        {error, What} -> error({failed_commit, What})
     end.
 
 %%%===================================================================

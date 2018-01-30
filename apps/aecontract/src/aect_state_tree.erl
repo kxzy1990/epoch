@@ -8,7 +8,9 @@
 -module(aect_state_tree).
 
 %% API
--export([ empty/0
+-export([ commit_to_db/1
+        , empty/0
+        , empty_with_backend/0
         , get_call/3
         , get_contract/2
         , insert_call/2
@@ -42,6 +44,12 @@
 -spec empty() -> tree().
 empty() ->
     #contract_tree{}.
+
+-spec empty_with_backend() -> tree().
+empty_with_backend() ->
+    CtTree = aeu_mtrees:empty_with_backend(aec_db_backends:contracts_backend()),
+    #contract_tree{contracts = CtTree
+                  }.
 
 %% -- Contracts --
 
@@ -100,3 +108,8 @@ root_hash(#contract_tree{contracts = CtTree}) ->
     %% need the hash of the contract tree here.
     aeu_mtrees:root_hash(CtTree).
 
+%% -- Commit to db --
+
+-spec commit_to_db(tree()) -> tree().
+commit_to_db(#contract_tree{contracts = CtTree} = Tree) ->
+    Tree#contract_tree{contracts = aeu_mtrees:commit_to_db(CtTree)}.

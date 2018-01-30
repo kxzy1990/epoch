@@ -11,6 +11,7 @@
 %% API
 
 -export([accounts/1,
+         commit_to_db/1,
          hash/1,
          new/0,
          oracles/1,
@@ -27,10 +28,15 @@
 
 -spec new() -> trees().
 new() ->
-    #trees{accounts  = aec_accounts_trees:empty(),
-           oracles   = aeo_state_tree:empty(),
-           contracts = aect_state_tree:empty()
+    #trees{accounts  = aec_accounts_trees:empty_with_backend(),
+           oracles   = aeo_state_tree:empty_with_backend(),
+           contracts = aect_state_tree:empty_with_backend()
           }.
+
+-spec commit_to_db(trees()) -> trees().
+commit_to_db(Trees) ->
+    %% Make this in a transaction to get atomicity.
+    aec_db:transaction(fun() -> internal_commit_to_db(Trees)end).
 
 hash(Trees) ->
     internal_hash(Trees).
@@ -83,3 +89,9 @@ internal_hash(Trees) ->
 
 pad_empty({ok, H}) when is_binary(H) -> H;
 pad_empty({error, empty}) -> <<0:?STATE_HASH_BYTES/unit:8>>.
+
+internal_commit_to_db(Trees) ->
+    Trees#trees{ contracts = aect_state_tree:commit_to_db(contracts(Trees))
+               , oracles   = aeo_state_tree:commit_to_db(oracles(Trees))
+               , accounts  = aec_accounts_trees:commit_to_db(accounts(Trees))
+               }.
