@@ -817,9 +817,6 @@ time_summary_N_blocks() ->
 new_state() ->
     aec_chain_state:new().
 
-new_state(Opts) ->
-    aec_chain_state:new(Opts).
-
 setup_meck_and_keys() ->
     aec_test_utils:mock_difficulty_as_target(),
     aec_test_utils:mock_block_target_validation(),
@@ -843,12 +840,6 @@ write_headers_to_chain([H|T], State) ->
     write_headers_to_chain(T, State1);
 write_headers_to_chain([], State) ->
     State.
-
-gc_opts(KeepAll, Max, Interval) ->
-    #{ max_snapshot_height => Max
-     , sparse_snapshots_interval => Interval
-     , keep_all_snapshots_height => KeepAll
-     }.
 
 gen_blocks_only_chain(Data) ->
     blocks_only_chain(gen_block_chain_with_state(Data)).

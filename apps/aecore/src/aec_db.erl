@@ -237,10 +237,7 @@ import_old_persistence_data() ->
         [] ->
             ok;
         Chain ->
-            Hash = aec_persistence:get_top_block(),
-            TopState = aec_persistence:get_block_state(Hash),
-            InitTrees = [{Hash, TopState}],
-            ChainState = aec_chain_state:new_from_persistence(Chain, InitTrees),
+            ChainState = aec_chain_state:new_from_persistence(Chain),
             transaction(fun() -> persist_chain(ChainState) end),
             aec_persistence:remove_files(),
             ok
