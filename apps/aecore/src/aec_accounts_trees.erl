@@ -34,10 +34,11 @@
 %%%===================================================================
 %%% API - similar to OTP `gb_trees` module
 %%%===================================================================
-
+-spec empty() -> tree().
 empty() ->
     aeu_mtrees:empty().
 
+-spec empty_with_backend() -> tree().
 empty_with_backend() ->
     aeu_mtrees:empty_with_backend(aec_db_backends:accounts_backend()).
 
