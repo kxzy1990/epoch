@@ -1,6 +1,7 @@
 -sname epoch
 
 -setcookie epoch_cookie
+-pa patches/ebin
 
 +K true
 +A30

@@ -160,7 +160,8 @@ get_transactions_between(Hash, Root, Transactions, State) ->
             case get_block(Hash, State) of
                 {ok, #block{prev_hash = Parent,
                             txs = BlockTransactions}} ->
-                    NewTransactions = BlockTransactions ++ Transactions,
+                    NewTransactions =
+                        [{T,Hash} || T <- BlockTransactions] ++ Transactions,
                     get_transactions_between(Parent, Root,
                                              NewTransactions, State);
                 {error,_} -> throw({error, {block_off_chain, Hash}})
@@ -201,8 +202,14 @@ persistence_store_block(Block, StateBefore, State) ->
     try begin
             %% Best effort persistence.
             %% If the server is not there, ignore it.
-            aec_db:write_block(Block),
-            persist_chain(StateBefore, State)
+            #block{txs = Transactions} = Block,
+            aec_db:ensure_transaction(
+              fun() ->
+                      aec_db:write_txs(
+                        Transactions, block_hash(Block)),
+                      aec_db:write_block(Block),
+                      persist_chain(StateBefore, State)
+              end)
         end
     catch T:E ->
             lager:error("Persistence server error: ~p:~p", [T, E]),
@@ -213,8 +220,11 @@ persistence_store_header(Header, StateBefore, State) ->
     try begin
             %% Best effort persistence.
             %% If the server is not there, ignore it.
-            aec_db:write_header(Header),
-            persist_chain(StateBefore, State)
+            aec_db:ensure_transaction(
+              fun() ->
+                      aec_db:write_header(Header),
+                      persist_chain(StateBefore, State)
+              end)
         end
     catch T:E ->
             lager:error("Persistence server error: ~p:~p", [T, E]),
@@ -226,7 +236,8 @@ persistence_store_header(Header, StateBefore, State) ->
 %%       should not be written unless we have persisted the state trees
 %%       to avoid problems on restart.
 persist_chain(StateBefore, StateAfter) ->
-    aec_db:transaction(fun() -> do_persist_chain(StateBefore, StateAfter) end).
+    aec_db:ensure_transaction(
+      fun() -> do_persist_chain(StateBefore, StateAfter) end).
 
 do_persist_chain(StateBefore, StateAfter) ->
     case aec_chain_state:top_header_hash(StateAfter) of
@@ -249,3 +260,7 @@ persist_state_trees(StateBefore, StateAfter) ->
     lists:foreach(fun({Hash, Trees}) ->
                           aec_db:write_block_state(Hash, Trees)
                   end, Persist).
+
+block_hash(Block) ->
+    {ok, Hash} = aec_headers:hash_header(aec_blocks:to_header(Block)),
+    Hash.
