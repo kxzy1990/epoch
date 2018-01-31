@@ -28,6 +28,7 @@
         , get_block_state/2
         , get_account/2
         , get_all_accounts_balances/2
+        , get_name_entry/2
         , get_top_block_hash/1
         , get_top_header/1
         , get_top_header_hash/1
@@ -40,6 +41,7 @@
         , insert_block/2
         , insert_header/2
         , get_top_state_trees/1
+        , resolve_name/3
         ]).
 
 %%%===================================================================
@@ -125,6 +127,9 @@ get_account(Pubkey, State) ->
 get_all_accounts_balances(Hash, State) ->
     aec_chain_state:all_accounts_balances(Hash, State#state.chain_state).
 
+get_name_entry(Name, State) ->
+    aec_chain_state:name_entry(Name, State#state.chain_state).
+
 get_top_block_hash(State) ->
     aec_chain_state:top_block_hash(State#state.chain_state).
 
@@ -198,6 +203,9 @@ insert_header(Header, State) ->
 get_top_state_trees(State) ->
     ChainState1 = State#state.chain_state,
     aec_chain_state:get_top_state_trees(ChainState1).
+
+resolve_name(Type, Name, State) ->
+    aec_chain_state:resolve_name(Type, Name, State#state.chain_state).
 
 %%%===================================================================
 %%% Handle persistence

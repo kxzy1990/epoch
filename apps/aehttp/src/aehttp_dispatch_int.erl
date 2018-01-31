@@ -16,7 +16,7 @@ handle_request('PostSpendTx', #{'SpendTx' := SpendTxObj}, _Context) ->
             #{<<"recipient_pubkey">> := EncodedRecipientPubkey,
               <<"amount">>           := Amount,
               <<"fee">>              := Fee} = SpendTxObj,
-            case aens:resolve(account_pubkey, EncodedRecipientPubkey) of
+            case aec_conductor:resolve_name(account_pubkey, EncodedRecipientPubkey) of
                 {ok, DecodedRecipientPubkey} ->
                     {ok, SpendTx} =
                         aec_spend_tx:new(
@@ -76,7 +76,7 @@ handle_request('PostOracleQueryTx', #{'OracleQueryTx' := OracleQueryTxObj}, _Con
               <<"fee">>           := Fee} = OracleQueryTxObj,
             QueryTTLType = binary_to_existing_atom(maps:get(<<"type">>, QueryTTL), utf8),
             QueryTTLValue= maps:get(<<"value">>, QueryTTL),
-            case aens:resolve(oracle_pubkey, EncodedOraclePubkey) of
+            case aec_conductor:resolve_name(oracle_pubkey, EncodedOraclePubkey) of
                 {ok, DecodedOraclePubkey} ->
                     {ok, OracleQueryTx} =
                         aeo_query_tx:new(

@@ -8,8 +8,8 @@
 -module(aens).
 
 %% API
--export([resolve/2,
-         get_name_entry/1]).
+-export([resolve/3,
+         get_name_entry/2]).
 
 %%%===================================================================
 %%% Types
@@ -21,8 +21,8 @@
 %%% API
 %%%===================================================================
 
--spec resolve(atom(), binary()) -> {ok, binary()} | {error, atom()}.
-resolve(Type, Binary) ->
+-spec resolve(atom(), binary(), aens_state_tree:tree()) -> {ok, binary()} | {error, atom()}.
+resolve(Type, Binary, NSTree) ->
     case lists:reverse(binary:split(Binary, ?LABEL_SEPARATOR, [global, trim])) of
         [Binary] ->
             aec_base58c:safe_decode(Type, Binary);
@@ -33,9 +33,7 @@ resolve(Type, Binary) ->
                 [] ->
                     {error, registrar_unknown};
                 _ ->
-                    {ok, StateTrees} = aec_conductor:top_state_trees(),
-                    NameTree = aec_trees:ns(StateTrees),
-                    case get_name(Binary, NameTree) of
+                    case get_name(Binary, NSTree) of
                         {ok, #{<<"pointers">> := Pointers}} ->
                             case proplists:get_value(Type, Pointers) of
                                 undefined -> {error, type_not_found};
@@ -47,10 +45,8 @@ resolve(Type, Binary) ->
             end
     end.
 
--spec get_name_entry(binary()) -> {ok, map()} | {error, atom()}.
-get_name_entry(Name) ->
-    {ok, StateTrees} = aec_conductor:top_state_trees(),
-    NSTree = aec_trees:ns(StateTrees),
+-spec get_name_entry(binary(), aens_state_tree:tree()) -> {ok, map()} | {error, name_not_found}.
+get_name_entry(Name, NSTree) ->
     case get_name(Name, NSTree) of
         {ok, #{<<"name">>     := Name,
                <<"name_ttl">> := TTL,

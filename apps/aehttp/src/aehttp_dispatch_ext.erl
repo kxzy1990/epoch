@@ -146,7 +146,7 @@ handle_request('GetName', Req, _Context) ->
                N when is_binary(N) ->
                    N
            end,
-    case aens:get_name_entry(Name) of
+    case aec_conductor:get_name_entry(Name) of
         {error, name_not_found} ->
             {404, [], #{reason => <<"Name not found">>}};
         {ok, NameEntry} ->
